@@ -1,0 +1,76 @@
+# tests.txt  -  Arithmetic Expression Compiler Test Suite
+# Lines starting with '#' are skipped as comments.
+# One expression per non-comment line. 25 test cases total.
+# Expected results annotated in the comment above each expression.
+# =====================================================================
+
+# --- GROUP 1: Operator Precedence ---
+# [01] VALID. * before +. Result=14. Parens=(2+(3*4)). Postfix: 2 3 4 * +
+2+3*4
+# [02] VALID. () overrides precedence. Result=20. Parens=((2+3)*4).
+(2+3)*4
+# [03] VALID. Mixed precedence. Result=9. Parens=((1+(2*3))+(4/2))
+1+2*3+4/2
+# [04] VALID. All four operators. Result=6. Parens=((10-(2*3))+(8/4))
+10-2*3+8/4
+
+# --- GROUP 2: Left-Associativity ---
+# [05] VALID. Left-assoc subtraction ((8-3)-2)=3. Postfix: 8 3 - 2 -
+8-3-2
+# [06] VALID. Left-assoc division ((16/4)/2)=2. Postfix: 16 4 / 2 /
+16/4/2
+# [07] VALID. Left-assoc addition ((1+2)+3)=6.
+1+2+3
+# [08] VALID. Left-assoc subtraction chain. Result=83.
+100-10-5-2
+
+# --- GROUP 3: Unary Minus ---
+# [09] VALID. Unary minus on identifier. Parens=((-a)+b). Postfix: a NEG b +
+-a+b
+# [10] VALID. Unary minus on number. Result=-5.
+-5
+# [11] VALID. Double unary minus (--3). Result=3.
+--3
+# [12] VALID. Unary minus in subexpression. Parens=(2*(-x)).
+2*-x
+
+# --- GROUP 4: Nested Parentheses ---
+# [13] VALID. Nested parens. Parens=(((1+2)*3)+4). Result=13.
+((1+2)*3)+4
+# [14] VALID. Parens both sides. Result=50.
+(2+3)*(4+6)
+
+# --- GROUP 5: Identifiers and Decimals ---
+# [15] VALID. Mixed identifiers and decimals. Cannot evaluate. Symbols: x, y.
+x+3.14*y
+# [16] VALID. Underscore identifier. Cannot evaluate. Symbols: my_var.
+my_var*2
+# [17] VALID. Decimal arithmetic. Result=6.28.
+3.14*2
+
+# --- GROUP 6: Division by Zero (VALID with warning) ---
+# [18] VALID+WARNING. Division by literal 0. Warning printed.
+10/0
+
+# --- GROUP 7: INVALID - Syntax Errors ---
+# [19] INVALID. Consecutive operators: expected operand after '+', found '*'.
+2+*3
+# [20] INVALID. Unmatched opening '(': missing ')' at end of input.
+(2+3
+# [21] INVALID. Unmatched closing ')': trailing ')' with no '(' to match.
+2+3)
+# [22] INVALID. Two operands in a row: unexpected operand '5' (missing op?).
+4 5
+# [23] INVALID. Bare '+' with no operands: expected operand, found '+'.
++
+# [24] INVALID. Empty parentheses '()'.
+()
+
+# --- GROUP 8: INVALID - Lex Errors ---
+# [25] INVALID. Illegal character '@'.
+3 @ 4
+# [26] INVALID. Malformed number (double dot) '1.2.3'.
+1.2.3
+
+# --- GROUP 9: INVALID - Empty Input ---
+# [27] INVALID. Empty expression (blank line).

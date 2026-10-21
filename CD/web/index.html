@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arithmetic Expression Compiler</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-mark">AEC</div>
+        <div>
+          <h1>Arithmetic Expression Compiler</h1>
+          <p class="subtitle">C99 Front End Engine (Lexer &bull; Recursive Descent Parser &bull; AST &bull; Semantics)</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <span id="engineBadge" class="engine-badge engine-cli" title="Active compiler execution backend">
+          <span class="engine-dot"></span>
+          <span id="engineText">Native C Engine</span>
+        </span>
+        <button id="togglePrecedenceBtn" class="btn btn-secondary btn-sm" title="Learn how operator precedence and grammar rules work">
+          ⚡ Precedence Demo
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="main-layout">
+      <!-- Left Column: Input, Status, Summary, AST, Tokens -->
+      <section class="workspace">
+        
+        <!-- Input Box Section -->
+        <div class="card input-card">
+          <div class="card-header">
+            <span class="card-title">Expression Input</span>
+            <div class="input-actions">
+              <span id="colTracker" class="col-tracker">Col: 1</span>
+              <button id="clearBtn" class="btn btn-ghost btn-sm" title="Clear input">Clear</button>
+              <button id="analyzeBtn" class="btn btn-primary btn-sm">Analyze</button>
+            </div>
+          </div>
+          <div class="input-container">
+            <input 
+              type="text" 
+              id="exprInput" 
+              class="expr-input" 
+              placeholder="e.g. 2 + 3 * 4  or  (x + y) * -2" 
+              spellcheck="false" 
+              autocomplete="off"
+              value="2 + 3 * 4"
+            />
+            <div id="errorUnderline" class="error-underline-track" aria-hidden="true"></div>
+          </div>
+
+          <!-- Quick Example Chips -->
+          <div class="examples-bar">
+            <span class="examples-label">Examples:</span>
+            <div class="chip-group">
+              <button class="chip" data-expr="2+3*4">2+3*4</button>
+              <button class="chip" data-expr="(2+3)*4">(2+3)*4</button>
+              <button class="chip" data-expr="8-3-2">8-3-2</button>
+              <button class="chip" data-expr="-a+b">-a+b</button>
+              <button class="chip chip-err" data-expr="2+*3">2+*3</button>
+              <button class="chip chip-err" data-expr="(2+3">(2+3</button>
+              <button class="chip chip-err" data-expr="4 5">4 5</button>
+              <button class="chip chip-err" data-expr="3 @ 4">3 @ 4</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Diagnostic Banners (Errors & Warnings) -->
+        <div id="diagnosticsArea" class="diagnostics-area" style="display: none;">
+          <!-- Populated dynamically: errors & warnings -->
+        </div>
+
+        <!-- Result Status Banner & Quick Metrics -->
+        <div class="metrics-grid">
+          <div class="card metric-card">
+            <span class="metric-label">Status</span>
+            <div id="statusBadge" class="status-pill status-valid">
+              <span class="status-icon">✓</span>
+              <span id="statusText">VALID</span>
+            </div>
+          </div>
+
+          <div class="card metric-card">
+            <span class="metric-label">Evaluated Result</span>
+            <div id="resultVal" class="metric-value font-mono">14</div>
+          </div>
+
+          <div class="card metric-card">
+            <span class="metric-label">Parenthesized Form</span>
+            <div id="parensVal" class="metric-value font-mono">(2+(3*4))</div>
+          </div>
+
+          <div class="card metric-card">
+            <span class="metric-label">Postfix (RPN)</span>
+            <div id="postfixVal" class="metric-value font-mono">2 3 4 * +</div>
+          </div>
+        </div>
+
+        <!-- AST Visualizer -->
+        <div class="card ast-card">
+          <div class="card-header">
+            <div>
+              <span class="card-title">Abstract Syntax Tree (AST)</span>
+              <span class="card-subtitle">Visual hierarchy constructed by the recursive descent parser</span>
+            </div>
+            <div class="tree-controls">
+              <span class="legend-item"><span class="legend-dot dot-op"></span>Operator</span>
+              <span class="legend-item"><span class="legend-dot dot-num"></span>Number</span>
+              <span class="legend-item"><span class="legend-dot dot-id"></span>Identifier</span>
+              <button id="resetZoomBtn" class="btn btn-ghost btn-sm">Center View</button>
+            </div>
+          </div>
+          <div id="astContainer" class="ast-tree-viewport">
+            <svg id="astSvg" class="ast-svg"></svg>
+          </div>
+        </div>
+
+        <!-- Tokens & Symbols Split View -->
+        <div class="details-grid">
+          <!-- Token Stream Table -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Token Stream</span>
+              <span id="tokenCount" class="badge-count">5 tokens</span>
+            </div>
+            <div class="table-wrap">
+              <table class="token-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Lexeme</th>
+                    <th>Token Type</th>
+                    <th>Position (Line:Col)</th>
+                  </tr>
+                </thead>
+                <tbody id="tokenTableBody">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Right Sub-panel: Symbol Table & History -->
+          <div class="side-details">
+            <!-- Symbol Table -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Symbol Table</span>
+                <span id="symbolCount" class="badge-count">0 identifiers</span>
+              </div>
+              <div id="symbolList" class="symbol-list">
+                <p class="empty-state">No variables referenced.</p>
+              </div>
+            </div>
+
+            <!-- In-Memory History (Last 10) -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Session History</span>
+                <span class="card-subtitle">Last 10 queries</span>
+              </div>
+              <div id="historyList" class="history-list">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <!-- Precedence Demo Modal / Drawer -->
+    <div id="precedenceModal" class="modal-backdrop" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <h3>Grammar & Operator Precedence Walkthrough</h3>
+            <p class="subtitle">How the C parser enforces precedence & left-associativity</p>
+          </div>
+          <button id="closePrecedenceBtn" class="btn btn-ghost btn-icon">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="grammar-reference">
+            <h4>EBNF Grammar Rules (in parser.c)</h4>
+            <pre class="grammar-code"><code>expr   -&gt; term   (('+' | '-') term)*      <span class="comment">// Lowest precedence, left-associative</span>
+term   -&gt; factor (('*' | '/') factor)*    <span class="comment">// Higher precedence, left-associative</span>
+factor -&gt; NUMBER | IDENTIFIER 
+        | '(' expr ')'                    <span class="comment">// Parentheses reset to expr</span>
+        | '-' factor                      <span class="comment">// Highest precedence (unary prefix)</span></code></pre>
+          </div>
+
+          <div class="demo-walkthrough">
+            <h4>Case Study: <code>2 + 3 * 4</code></h4>
+            <div class="step-box">
+              <div class="step-num">1</div>
+              <div class="step-text">
+                <strong><code>expr()</code> is called:</strong> it must first parse a <code>term()</code> for its left-hand side.
+              </div>
+            </div>
+            <div class="step-box">
+              <div class="step-num">2</div>
+              <div class="step-text">
+                <strong><code>term()</code> parses <code>2</code>:</strong> looks ahead at <code>+</code>. Since <code>+</code> is not <code>*</code> or <code>/</code>, <code>term()</code> returns the leaf <code>2</code> immediately back to <code>expr()</code>.
+              </div>
+            </div>
+            <div class="step-box">
+              <div class="step-num">3</div>
+              <div class="step-text">
+                <strong><code>expr()</code> consumes <code>+</code>:</strong> now calls <code>term()</code> to parse the right-hand side.
+              </div>
+            </div>
+            <div class="step-box">
+              <div class="step-num">4</div>
+              <div class="step-text">
+                <strong><code>term()</code> parses <code>3</code>:</strong> sees the upcoming <code>*</code> operator. Because multiplication is handled <em>inside</em> <code>term()</code>, it eagerly binds <code>3 * 4</code> before returning!
+              </div>
+            </div>
+            <div class="step-box highlight">
+              <div class="step-num">✓</div>
+              <div class="step-text">
+                <strong>Final Tree:</strong> <code>+</code> has children <code>2</code> and <code>(3 * 4)</code>. Multiplication binds tighter naturally without operator tables!
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="loadPrecedenceDemoBtn" class="btn btn-primary">Try "2 + 3 * 4" in Visualizer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div>Arithmetic Expression Compiler (Front End) &bull; Built in standard C99 &bull; Zero external JS dependencies</div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
