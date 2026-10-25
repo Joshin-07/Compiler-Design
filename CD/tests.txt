@@ -1,0 +1,25 @@
+# tests.txt - 12 Test Cases for Viva Demonstration
+# 1. Precedence: multiplication before addition
+2+3*4
+# 2. Left-associativity: subtraction
+8-3-2
+# 3. Parentheses override precedence
+(2+3)*4
+# 4. Nested parentheses
+((1+2)*3)+4
+# 5. Unary minus on number
+-5
+# 6. Unary minus with identifier
+-a+b
+# 7. Identifiers (no evaluation)
+a+b*2
+# 8. Invalid: consecutive operators
+2+*3
+# 9. Invalid: unclosed parenthesis
+(2+3
+# 10. Invalid: two operands in a row
+4 5
+# 11. Invalid: illegal character
+3 @ 4
+# 12. Invalid: empty expression
+
