@@ -3,7 +3,7 @@
 This project checks and evaluates arithmetic expressions with a small C program.
 The lexer scans the input and stores each token and its position in fixed arrays.
 The recursive-descent parser reads those tokens, builds the parenthesized
-precedence text, and calculates the value when there are no identifiers.
+precedence text, and calculates the value when there are no identifiers. 
 
 ## Grammar
 
@@ -13,7 +13,7 @@ term   -> factor (('*' | '/') factor)*
 factor -> NUMBER | IDENTIFIER | '(' expr ')' | '-' factor
 ```
 
-Multiplication and division have higher precedence than addition and subtraction.
+Multiplication and division have higher precedence than addition and subtraction. 
 Operators at the same level are evaluated from left to right.
 
 ## Build and run with gcc
