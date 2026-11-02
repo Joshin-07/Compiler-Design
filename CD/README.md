@@ -63,3 +63,17 @@ web/
   server.js
 ```
 ...
+
+## Team Contributions
+
+The project was developed collaboratively, with each team member contributing to different aspects of the Arithmetic Expression Compiler.
+
+| Team Member         | Contribution               |
+| ------------------- | -------------------------- |
+| Diya Saira Charly   | Grammar and Parser         |
+| Donamol Joseph      | Web Interface and Server   |
+| Joshin K Thomas     | Lexer and Token Management |
+| K Shabeel           | Precedence Representation  |
+| Liya Beryl          | PPT Preparation            |
+| Mebin Abraham Eapen | Report Preparation         |
+
