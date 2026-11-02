@@ -1,5 +1,4 @@
 # Arithmetic Expression Compiler
-
 This project checks and evaluates arithmetic expressions with a small C program.
 The lexer scans the input and stores each token and its position in fixed arrays.
 The recursive-descent parser reads those tokens, builds the parenthesized
